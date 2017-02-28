@@ -1,4 +1,4 @@
-FROM alexcheng/apache2-php7
+FROM alexcheng/apache2-php5.6
 #test
 MAINTAINER Fu Cheng <alexcheng1982@gmail.com>
 

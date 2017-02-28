@@ -1,68 +1,50 @@
-FROM alexcheng/apache2-php5.6
-#test
-MAINTAINER Fu Cheng <alexcheng1982@gmail.com>
+FROM php:$VERSION
+MAINTAINER Mark Shust <mark.shust@mageinferno.com>
 
-RUN a2enmod rewrite
+RUN apt-get update \
+  && apt-get install -y \
+    cron \
+    libfreetype6-dev \
+    libicu-dev \
+    libjpeg62-turbo-dev \
+    libmcrypt-dev \
+    libpng12-dev \
+    libxslt1-dev
 
-ENV MAGENTO_VERSION 2.0.9
+RUN docker-php-ext-configure \
+  gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
 
-RUN rm -rf /var/www/html/*
-RUN cd /tmp && curl https://codeload.github.com/magento/magento2/tar.gz/$MAGENTO_VERSION -o $MAGENTO_VERSION.tar.gz && tar xvf $MAGENTO_VERSION.tar.gz && mv magento2-$MAGENTO_VERSION/* magento2-$MAGENTO_VERSION/.htaccess /var/www/html
+RUN docker-php-ext-install \
+  bcmath \
+  gd \
+  intl \
+  mbstring \
+  mcrypt \
+  pdo_mysql \
+  soap \
+  xsl \
+  zip
 
-RUN curl -sS https://getcomposer.org/installer | php
-RUN mv composer.phar /usr/local/bin/composer
-RUN requirements="libpng12-dev libmcrypt-dev libmcrypt4 libcurl3-dev libfreetype6 libjpeg-turbo8 libjpeg-turbo8-dev libpng12-dev libfreetype6-dev libicu-dev libxslt1-dev git-all" \
-    && apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-install pdo_mysql \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install gd \
-    && docker-php-ext-install mcrypt \
-    && docker-php-ext-install mbstring \
-    && docker-php-ext-install zip \
-    && docker-php-ext-install intl \
-    && docker-php-ext-install xsl \
-    && docker-php-ext-install soap \
-    && requirementsToRemove="libpng12-dev libmcrypt-dev libcurl3-dev libpng12-dev libfreetype6-dev libjpeg-turbo8-dev" \
-    && apt-get purge --auto-remove -y $requirementsToRemove
+RUN curl -sS https://getcomposer.org/installer | \
+  php -- --install-dir=/usr/local/bin --filename=composer
 
-# Make ssh dir
-RUN mkdir -p /root/.ssh
-RUN chown -R root:root /root/.ssh
-RUN chmod 700 /root/.ssh
+ENV PHP_MEMORY_LIMIT 2G
+ENV PHP_PORT 9000
+ENV PHP_PM dynamic
+ENV PHP_PM_MAX_CHILDREN 10
+ENV PHP_PM_START_SERVERS 4
+ENV PHP_PM_MIN_SPARE_SERVERS 2
+ENV PHP_PM_MAX_SPARE_SERVERS 6
+ENV APP_MAGE_MODE default
 
-# Create known_hosts
-RUN touch /root/.ssh/known_hosts
-# Add github key
-RUN ssh-keyscan -t rsa github.com > ~/.ssh/known_hosts
-
-COPY ./auth.json /var/www/.composer/
-RUN chsh -s /bin/bash www-data
-RUN chown -R www-data:www-data /var/www
-RUN su www-data -c "cd /var/www/html && composer install"
-RUN cd /var/www/html \
-    && find . -type d -exec chmod 770 {} \; \
-    && find . -type f -exec chmod 660 {} \; \
-    && chmod u+x bin/magento
-
-COPY ./bin/install-magento /usr/local/bin/install-magento
-RUN chmod +x /usr/local/bin/install-magento
-
-COPY ./bin/install-sampledata /usr/local/bin/install-sampledata
-RUN chmod +x /usr/local/bin/install-sampledata
-
-RUN echo "memory_limit=1024M" > /usr/local/etc/php/conf.d/memory-limit.ini
-
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+COPY conf/www.conf /usr/local/etc/php-fpm.d/
+COPY conf/php.ini /usr/local/etc/php/
+COPY conf/php-fpm.conf /usr/local/etc/
+COPY bin/* /usr/local/bin/
 
 WORKDIR /var/www/html
 
-VOLUME /var/www/html/var
-VOLUME /var/www/html/pub
 
-# Add cron job
-ADD crontab /etc/cron.d/magento2-cron
-RUN chmod 0644 /etc/cron.d/magento2-cron
-RUN crontab -u www-data /etc/cron.d/magento2-cron
 
 # Run setup script
 RUN php /var/www/html/bin/magento setup:install --base-url=http://il0a-cms-docker1/ \
@@ -84,5 +66,6 @@ COPY ./key.txt /var/www/html/
 #Get permissions
 RUN chmod -Rf 777 /var/www/html
 
+CMD ["/usr/local/bin/start"]
 
 

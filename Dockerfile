@@ -1,4 +1,4 @@
-FROM php:$VERSION
+FROM php:5.6
 MAINTAINER Mark Shust <mark.shust@mageinferno.com>
 
 RUN apt-get update \

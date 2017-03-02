@@ -1,4 +1,4 @@
-FROM eboraas/apache-php
+FROM doravidan/apache2-php5.6
 
 RUN a2enmod rewrite
 
@@ -7,9 +7,8 @@ ENV MAGENTO_VERSION 2.0.9
 RUN rm -rf /var/www/html/*
 RUN cd /tmp && curl https://codeload.github.com/magento/magento2/tar.gz/$MAGENTO_VERSION -o $MAGENTO_VERSION.tar.gz && tar xvf $MAGENTO_VERSION.tar.gz && mv magento2-$MAGENTO_VERSION/* magento2-$MAGENTO_VERSION/.htaccess /var/www/html
 
-RUN curl -sS https://getcomposer.org/installer | php
-RUN mv composer.phar /usr/local/bin/composer
-RUN apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/lists/* \
+RUN requirements="libpng12-dev libmcrypt-dev libmcrypt4 libcurl3-dev libfreetype6 libjpeg-turbo8 libjpeg-turbo8-dev libpng12-dev libfreetype6-dev libicu-dev libxslt1-dev git-all" \
+    && apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install pdo_mysql \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install gd \
@@ -18,7 +17,9 @@ RUN apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/li
     && docker-php-ext-install zip \
     && docker-php-ext-install intl \
     && docker-php-ext-install xsl \
-    && docker-php-ext-install soap 
+    && docker-php-ext-install soap \
+    && requirementsToRemove="libpng12-dev libmcrypt-dev libcurl3-dev libpng12-dev libfreetype6-dev libjpeg-turbo8-dev" \
+    && apt-get purge --auto-remove -y $requirementsToRemove
 
 # Make ssh dir
 RUN mkdir -p /root/.ssh

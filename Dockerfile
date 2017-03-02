@@ -34,7 +34,8 @@ RUN ssh-keyscan -t rsa github.com > ~/.ssh/known_hosts
 COPY ./auth.json /var/www/.composer/
 RUN chsh -s /bin/bash www-data
 RUN chown -R www-data:www-data /var/www
-RUN su www-data -c "cd /var/www/html && composer install"
+#RUN su www-data -c "cd /var/www/html && composer install"
+RUN su www-data -c "cd /var/www/html"
 RUN cd /var/www/html \
     && find . -type d -exec chmod 770 {} \; \
     && find . -type f -exec chmod 660 {} \; \

@@ -9,8 +9,7 @@ RUN cd /tmp && curl https://codeload.github.com/magento/magento2/tar.gz/$MAGENTO
 
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
-RUN requirements="libpng12-dev libmcrypt-dev libmcrypt4 libcurl3-dev libfreetype6 libpng12-dev libfreetype6-dev libicu-dev libxslt1-dev git-all" \
-    && apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/lists/* \
+RUN apt-get update && apt-get install -y $requirements && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install pdo_mysql \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install gd \
@@ -19,9 +18,7 @@ RUN requirements="libpng12-dev libmcrypt-dev libmcrypt4 libcurl3-dev libfreetype
     && docker-php-ext-install zip \
     && docker-php-ext-install intl \
     && docker-php-ext-install xsl \
-    && docker-php-ext-install soap \
-    && requirementsToRemove="libpng12-dev libmcrypt-dev libcurl3-dev libpng12-dev libfreetype6-dev" \
-    && apt-get purge --auto-remove -y $requirementsToRemove
+    && docker-php-ext-install soap 
 
 # Make ssh dir
 RUN mkdir -p /root/.ssh

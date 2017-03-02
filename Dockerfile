@@ -1,4 +1,4 @@
-FROM php:5.6-apache
+FROM doravidan/apache2-php5.6
 
 RUN a2enmod rewrite
 
@@ -6,6 +6,9 @@ ENV MAGENTO_VERSION 2.0.9
 
 RUN rm -rf /var/www/html/*
 RUN cd /tmp && curl https://codeload.github.com/magento/magento2/tar.gz/$MAGENTO_VERSION -o $MAGENTO_VERSION.tar.gz && tar xvf $MAGENTO_VERSION.tar.gz && mv magento2-$MAGENTO_VERSION/* magento2-$MAGENTO_VERSION/.htaccess /var/www/html
+
+RUN curl -sS https://getcomposer.org/installer | php
+RUN mv composer.phar /usr/local/bin/composer
 
 # Make ssh dir
 RUN mkdir -p /root/.ssh
@@ -21,7 +24,6 @@ COPY ./auth.json /var/www/.composer/
 RUN chsh -s /bin/bash www-data
 RUN chown -R www-data:www-data /var/www
 RUN su www-data -c "cd /var/www/html && composer install"
-RUN su www-data -c "cd /var/www/html"
 RUN cd /var/www/html \
     && find . -type d -exec chmod 770 {} \; \
     && find . -type f -exec chmod 660 {} \; \
@@ -66,6 +68,7 @@ COPY ./key.txt /var/www/html/
 
 #Get permissions
 RUN chmod -Rf 777 /var/www/html
+
 
 
 

@@ -1,4 +1,4 @@
-FROM antage/apache2-php5
+FROM eboraas/apache-php
 
 RUN a2enmod rewrite
 

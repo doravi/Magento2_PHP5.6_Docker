@@ -11,7 +11,7 @@ RUN cd /tmp && curl https://codeload.github.com/magento/magento2/tar.gz/$MAGENTO
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
 
-# Make ssh dir
+# Make ssh dirr
 RUN mkdir -p /root/.ssh
 RUN chown -R root:root /root/.ssh
 RUN chmod 700 /root/.ssh

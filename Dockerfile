@@ -51,7 +51,7 @@ RUN chmod 0644 /etc/cron.d/magento2-cron
 #RUN crontab -u www-data /etc/cron.d/magento2-cron
 
 #set developer mode
-RUN php /var/www/html/bin/magento deploy:mode:set developer
+#RUN php /var/www/html/bin/magento deploy:mode:set developer
 
 COPY ./composer.json /var/www/html/
 COPY ./key.txt /var/www/html/

@@ -19,7 +19,7 @@ RUN chmod 700 /root/.ssh
 # Create known_hosts
 RUN touch /root/.ssh/known_hosts
 # Add github key
-RUN ssh-keyscan -t rsa github.com > ~/.ssh/known_hosts
+#RUN ssh-keyscan -t rsa github.com > ~/.ssh/known_hosts
 
 COPY ./auth.json /var/www/.composer/
 RUN chsh -s /bin/bash www-data

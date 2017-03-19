@@ -48,7 +48,7 @@ VOLUME /var/www/html/pub
 # Add cron job
 ADD crontab /etc/cron.d/magento2-cron
 RUN chmod 0644 /etc/cron.d/magento2-cron
-RUN crontab -u www-data /etc/cron.d/magento2-cron
+#RUN crontab -u www-data /etc/cron.d/magento2-cron
 
 #set developer mode
 RUN php /var/www/html/bin/magento deploy:mode:set developer
